@@ -38,10 +38,10 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
 
 RUN pip install git+https://github.com/carrier-io/perfreporter.git
 
-# Creating carrier user and making him sudoer
+# Creating jenkins user and making him sudoer
 RUN groupadd -g $GID $UNAME
 RUN useradd -m -u $UID -g $GID -s /bin/bash $UNAME
-RUN echo "carrier    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN echo "jenkins    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Installing Java Jolokia
 RUN  mkdir /opt/java && cd /opt/java \
@@ -65,7 +65,7 @@ COPY promtail-docker-config.yaml /etc/promtail/docker-config.yaml
 RUN mkdir /jmeter
 RUN chown -R ${UNAME}:${UNAME} /jmeter
 RUN chown -R ${UNAME}:${UNAME} /jmeter/
-USER carrier
+USER jenkins
 RUN   cd /jmeter/ \
       && wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-$JMETER_VERSION.tgz \
       && tar -xzf apache-jmeter-$JMETER_VERSION.tgz \
