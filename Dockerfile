@@ -20,9 +20,9 @@ ARG JMETER_VERSION=5.0
 
 ENV lg_name perfmeter
 ENV lg_id 1
-ARG UNAME=carrier
-ARG UID=1001
-ARG GID=1001
+ARG UNAME=jenkins
+ARG UID=502
+ARG GID=502
 
 # Install utilities
 RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
