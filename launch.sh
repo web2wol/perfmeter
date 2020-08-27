@@ -194,7 +194,8 @@ export _influx_host="-i ${influx_host}"
 else
 export _influx_host=""
 fi
-args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl -e -o /tmp/reports/HtmlReport/"
+args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl"
+#args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl -e -o /tmp/reports/HtmlReport/"
 set -e
 
 if [[ -z "${JVM_ARGS}" ]]; then
