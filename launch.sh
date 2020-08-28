@@ -12,10 +12,16 @@ done
 fi
 
 #just for debug purposes
-if [[ ${slave.node}==false ]]; then
+if [[ -z"${JVM_ARGS}" ]]; then
+  export JVM_ARGS="-Xmn1g -Xms1g -Xmx1g"
+fi
+
+if [ "${slave_node}" = "false" ]; then
 	echo "######## this is the master node ###########"
+	echo "slave_node valuse is set to $slave_node"
 else
 	echo "######## this is the slave node ###########"
+	echo "slave_node valuse is set to $slave_node"
 fi
 
 
@@ -232,7 +238,7 @@ fi
 
 echo "Tests are done"
 
-if [[ ${slave.node}==false ]]; then
+if [ "${slave_node}" = "false" ]; then
 echo "Sleep for 30 sec to be sure that other slaves finished their work"
 sleep 30s
 python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
