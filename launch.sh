@@ -12,9 +12,6 @@ done
 fi
 
 #just for debug purposes
-if [[ -z"${JVM_ARGS}" ]]; then
-  export JVM_ARGS="-Xmn1g -Xms1g -Xmx1g"
-fi
 
 if [ "${slave_node}" = "false" ]; then
 	echo "######## this is the master node ###########"
