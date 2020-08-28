@@ -12,7 +12,7 @@ done
 fi
 
 #just for debug purposes
-if [[ ${args} == *"slave.node=false"* ]]; then
+if [[ $param =~ slave.node=false ]]; then
 	echo "######## this is the master node ###########"
 else
 	echo "######## this is the slave node ###########"
@@ -232,7 +232,7 @@ fi
 
 echo "Tests are done"
 
-if [[ ${args} == *"slave.node=false"* ]]; then
+if [[ $param =~ slave.node=false ]]; then
 echo "Sleep for 30 sec to be sure that other slaves finished their work"
 sleep 30s
 python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
