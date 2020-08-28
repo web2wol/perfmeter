@@ -10,6 +10,10 @@ do
     fi
 done
 fi
+#just for debug purposes
+if [[ $param =~ slave.node=false ]]; then
+echo "########  this is master node ###########"
+fi
 
 if [[ "${property_file}" ]]; then
 echo "Extracting InfluxDB configuration from property file - $property_file"
@@ -224,5 +228,10 @@ fi
 
 echo "Tests are done"
 
-python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}
+if [[ $param =~ slave.node=false ]]; then
+python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
+else
+	echo "You need to set slave.node param and pass it to launch.sh file"
+fi
+
 echo "END Running Jmeter on `date`"
