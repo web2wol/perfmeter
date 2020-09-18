@@ -37,7 +37,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
     rm -rf /tmp/*
 
 #Additional python lib
-RUN pip install git+https://github.com/web2wol/perfreporter.git
+RUN pip install git+https://github.com/carrier-io/perfreporter.git
 
 # Creating jenkins user and making him sudoer
 RUN groupadd -g $GID $UNAME
