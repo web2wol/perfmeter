@@ -36,6 +36,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
     python -m pip install 'common==0.1.2' 'configobj==5.0.6' 'redis==3.2.0' 'argparse==1.4.0'  && \
     rm -rf /tmp/*
 
+#Additional python lib
 RUN pip install git+https://github.com/web2wol/perfreporter.git
 
 # Creating jenkins user and making him sudoer
