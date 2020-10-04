@@ -11,7 +11,8 @@ FROM ubuntu:16.04
 
 RUN apt-get update \
     && apt-get -y install openjdk-8-jdk software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get -y install vim \
+	&& rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH
@@ -37,7 +38,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
     rm -rf /tmp/*
 
 #Additional python lib
-RUN pip install git+https://github.com/carrier-io/perfreporter.git
+RUN pip install --no-cache-dir git+https://github.com/web2wol/perfreporter.git
 
 # Creating jenkins user and making him sudoer
 RUN groupadd -g $GID $UNAME
@@ -89,6 +90,7 @@ COPY Common/InfluxBackendListenerClient.jar /jmeter/apache-jmeter-$JMETER_VERSIO
 COPY Tests /mnt/jmeter
 COPY config.yaml /tmp/
 COPY reports /tmp/reports/
+RUN alias ll="ls -lah"
 
 # Application to run on starting the container
 ENTRYPOINT ["/launch.sh"]

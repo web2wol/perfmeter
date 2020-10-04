@@ -1,52 +1,55 @@
 #!/bin/bash
 
 args=$@
-if [[ ${args} == *"-q "* ]]; then
-IFS=" " read -ra PARAMS <<< "$args"
-for index in "${!PARAMS[@]}"
-do
-    if [[ ${PARAMS[index]} == "-q" ]]; then
-        property_file=${PARAMS[index + 1]}
-    fi
-done
-fi
+#if [[ ${args} == *"-q "* ]]; then
+#IFS=" " read -ra PARAMS <<< "$args"
+#for index in "${!PARAMS[@]}"
+#do
+#    if [[ ${PARAMS[index]} == "-q" ]]; then
+#        property_file=${PARAMS[index + 1]}
+#    fi
+#done
+#fi
 
 #just for debug purposes
 
 if [ "${slave_node}" = "false" ]; then
-	echo "######## this is the master node ###########"
+	echo "######## this is the MASTER NODE ###########"
 	echo "slave_node valuse is set to $slave_node"
 else
-	echo "######## this is the slave node ###########"
+	echo "######## this is the SLAVE NODE ###########"
 	echo "slave_node valuse is set to $slave_node"
 fi
 
 
-if [[ "${property_file}" ]]; then
-echo "Extracting InfluxDB configuration from property file - $property_file"
-while IFS= read -r param
-do
-          if [[ $param =~ influx.host=(.+) ]]; then
-            export influx_host=${BASH_REMATCH[1]}
-          fi
-          if [[ $param =~ influx.port=(.+) ]]; then
-            export influx_port=${BASH_REMATCH[1]}
-          fi
-          if [[ $param =~ influx.db=(.+) ]]; then
-            export jmeter_db=${BASH_REMATCH[1]}
-          fi
-          if [[ $param =~ comparison_db=(.+) ]]; then
-            export comparison_db=${BASH_REMATCH[1]}
-          fi
-          if [[ $param =~ test.type=(.+) ]]; then
-            export test_type=${BASH_REMATCH[1]}
-          fi
-          if [[ $param =~ test_name=(.+) ]]; then
-            export test_name=${BASH_REMATCH[1]}
-          fi
+#if [[ "${property_file}" ]]; then
+#echo "Extracting InfluxDB configuration from property file - $property_file"
+#while IFS= read -r param
+#do
+#          if [[ $param =~ influx.host=(.+) ]]; then
+#            export influx_host=${BASH_REMATCH[1]}
+#          fi
+#          if [[ $param =~ influx.port=(.+) ]]; then
+#            export influx_port=${BASH_REMATCH[1]}
+#          fi
+#          if [[ $param =~ influx.db=(.+) ]]; then
+#            export jmeter_db=${BASH_REMATCH[1]}
+#          fi
+#          if [[ $param =~ comparison_db=(.+) ]]; then
+#            export comparison_db=${BASH_REMATCH[1]}
+#          fi
+#          if [[ $param =~ test.type=(.+) ]]; then
+#            export test_type=${BASH_REMATCH[1]}
+#          fi
+#          if [[ $param =~ test_name=(.+) ]]; then
+#            export test_name=${BASH_REMATCH[1]}
+#          fi
+#
+#done < "$property_file"
+#fi
 
-done < "$property_file"
-fi
+
+
 
 if [[ -z "${config_yaml}" ]]; then
 export config=$(python -c "import yaml; y = yaml.load(open('/tmp/config.yaml').read()); print(y)")
@@ -238,7 +241,7 @@ echo "Tests are done"
 if [ "${slave_node}" = "false" ]; then
 echo "Sleep for 30 sec to be sure that other slaves finished their work"
 sleep 30s
-python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
+python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
 else
 	echo "Are you running the test as slave node?  You need to set slave.node param and pass it to launch.sh file"
 fi
