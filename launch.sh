@@ -241,6 +241,7 @@ echo "Tests are done"
 if [ "${slave_node}" = "false" ]; then
 echo "Sleep for 30 sec to be sure that other slaves finished their work"
 sleep 30s
+echo "post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}"
 python post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}
 else
 	echo "Are you running the test as slave node?  You need to set slave.node param and pass it to launch.sh file"
