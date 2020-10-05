@@ -203,8 +203,9 @@ else
 export _influx_password="-ip ${influx_password}"
 fi
 
+#possibly this if condition does nothing... need to check in the future.
 if [[ "${influx_host}" ]]; then
-export _influx_host="-i ${influx_host}"
+export _influx_host=" ${influx_host}"
 else
 export _influx_host=""
 fi
@@ -220,12 +221,16 @@ export tests_path=/mnt/jmeter
 python minio_tests_reader.py
 python minio_additional_files_reader.py
 mkdir '/tmp/data_for_post_processing'
-python minio_poster.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}
+python minio_poster.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}
 
 if [[ "${influx_host}" ]]; then
 python ./place_listeners.py ${args// /%} ./backend_listener.jmx
 fi
 
+echo "########################################################"
+echo "the post_processor.py will receive the next parameters"
+echo "post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -icdb ${comparison_db} -en ${env} ${_influx_user} ${_influx_password}"
+echo "########################################################"
 echo "START Running Jmeter on `date`"
 echo "jmeter args=${args}"
 cd "jmeter/apache-jmeter-5.3/bin/"
