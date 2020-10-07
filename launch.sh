@@ -100,6 +100,7 @@ for i in "${arr[@]}"; do
     done
 fi
 
+
 for i in "${arr[@]}"; do
           if [[ $i =~ -Jbuild.id=(.+) ]]; then
             export build_id=${BASH_REMATCH[1]}
@@ -110,6 +111,23 @@ for i in "${arr[@]}"; do
             export lg_id="Lg_"$RANDOM"_"$RANDOM
           fi
     done
+
+
+#START# parse arg with url where to fetch tag // auto tag preparation
+#there is assumption that you can pass only (qai,qar,stg)-manage.passkey.com
+if [[ ${build_id} =~ (https://.+) ]]; then
+
+build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
+
+        if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
+            build_id=${BASH_REMATCH[1]}'_'$(date +"%y_%m_%d-%H_%M_%S")
+        fi
+fi
+echo ${build_id}
+#END# parse arg with url where to fetch tag
+
+
+
 
 if [[ ${args} == *"-Jinflux.host"* || ${args} == *"-Jinflux.port"* || ${args} == *"-Jjmeter_db"* || ${args} == *"-Jcomparison_db"* ]]; then
 arr=(${args// / })
@@ -172,35 +190,38 @@ DEFAULT_EXECUTION="/usr/bin/java"
 JOLOKIA_AGENT="-javaagent:/opt/java/jolokia-jvm-1.6.0-agent.jar=config=/opt/jolokia.conf"
 
 if [[ "${influx_host}" ]]; then
-if [[ ${args} != *"-Jinflux.host"* ]]; then
-args="${args} -Jinflux.host=${influx_host}"
+	if [[ ${args} != *"-Jinflux.host"* ]]; then
+		args="${args} -Jinflux.host=${influx_host}"
+	fi
+	if [[ ${args} != *"-Jinflux.port"* ]]; then
+		args="${args} -Jinflux.port=${influx_port}"
+	fi
+	if [[ ${args} != *"-Jinflux.db"* ]]; then
+		args="${args} -Jinflux.db=${jmeter_db}"
+	fi
+	if [[ ${args} != *"-Jcomparison_db"* ]]; then
+		args="${args} -Jcomparison_db=${comparison_db}"
+	fi
 fi
-if [[ ${args} != *"-Jinflux.port"* ]]; then
-args="${args} -Jinflux.port=${influx_port}"
-fi
-if [[ ${args} != *"-Jinflux.db"* ]]; then
-args="${args} -Jinflux.db=${jmeter_db}"
-fi
-if [[ ${args} != *"-Jcomparison_db"* ]]; then
-args="${args} -Jcomparison_db=${comparison_db}"
-fi
-fi
+
 if [[ ${args} != *"-Jlg.id"* ]]; then
-args="${args} -Jlg.id=${lg_id}"
+	args="${args} -Jlg.id=${lg_id}"
 fi
+
 if [[ ${args} != *"-Jbuild.id"* ]]; then
-args="${args} -Jbuild.id=${build_id}"
+	args="${args} -Jbuild.id=${build_id}"
 fi
+
 if [[ -z "${influx_user}" ]]; then
-export _influx_user=""
+	export _influx_user=""
 else
-export _influx_user="-iu ${influx_user}"
+	export _influx_user="-iu ${influx_user}"
 fi
 
 if [[ -z "${influx_password}" ]]; then
-export _influx_password=""
+	export _influx_password=""
 else
-export _influx_password="-ip ${influx_password}"
+	export _influx_password="-ip ${influx_password}"
 fi
 
 #possibly this if condition does nothing... need to check in the future.
