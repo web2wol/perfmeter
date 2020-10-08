@@ -1,6 +1,36 @@
 #!/bin/bash
-
+#set -euo pipefail
 args=$@
+arr=(${args// / })
+tag_func(){
+#the function read args trying to find -Jbuild.id=https://... and generate new build.id tag and replace in args.
+
+        if [[ $args =~ .+\-Jbuild.id=https://.+ ]]; then
+                echo "found URL for tag parsing and autopreparing build.id"
+                for i in "${arr[@]}"; do
+                  if [[ $i =~ -Jbuild.id=(https://.+) ]]; then
+                        build_id=${BASH_REMATCH[1]}
+						build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
+								if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
+									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%y_%m_%d-%H_%M_%S")
+									echo $build_id
+								fi
+                        all_args="$all_args ${build_id}"
+					else
+                        all_args="$all_args $i"
+					fi
+                done
+#                echo "all args = $all_args"
+
+fi
+set -- $all_args
+args=$@
+arr=(${args// / })
+echo "-Jbuild.id prepared successfully and replaced in args"
+#echo " new args"
+#echo $args
+}
+tag_func
 #if [[ ${args} == *"-q "* ]]; then
 #IFS=" " read -ra PARAMS <<< "$args"
 #for index in "${!PARAMS[@]}"
@@ -73,7 +103,7 @@ export loki_port=$(python -c "import yaml; y = yaml.load(open('/tmp/config.yaml'
 fi
 fi
 
-arr=(${args// / })
+#arr=(${args// / })
 
 if [[ ${args} == *"-Jtest.type="* ]]; then
 for i in "${arr[@]}"; do
@@ -111,22 +141,6 @@ for i in "${arr[@]}"; do
             export lg_id="Lg_"$RANDOM"_"$RANDOM
           fi
     done
-
-
-#START# parse arg with url where to fetch tag // auto tag preparation
-#there is assumption that you can pass only (qai,qar,stg)-manage.passkey.com
-if [[ ${build_id} =~ (https://.+) ]]; then
-
-build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
-
-        if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
-            build_id=${BASH_REMATCH[1]}'_'$(date +"%y_%m_%d-%H_%M_%S")
-        fi
-fi
-echo ${build_id}
-#END# parse arg with url where to fetch tag
-
-
 
 
 if [[ ${args} == *"-Jinflux.host"* || ${args} == *"-Jinflux.port"* || ${args} == *"-Jjmeter_db"* || ${args} == *"-Jcomparison_db"* ]]; then
