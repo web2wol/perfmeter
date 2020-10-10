@@ -6,13 +6,13 @@ tag_func(){
 #the function read args trying to find -Jbuild.id=https://... and generate new build.id tag and replace in args.
 
         if [[ $args =~ .+\-Jbuild.id=https://.+ ]]; then
-                echo "found URL for tag parsing and autopreparing build.id"
+                echo "####### found URL for tag parsing and autopreparing build.id #######"
                 for i in "${arr[@]}"; do
                   if [[ $i =~ -Jbuild.id=(https://.+) ]]; then
                         build_id=${BASH_REMATCH[1]}
 						build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
 								if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
-									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%y_%m_%d-%H_%M_%S")
+									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%m_%d_%y-%H_%M_%S")
 									echo $build_id
 								fi
                         all_args="$all_args ${build_id}"
@@ -26,7 +26,7 @@ fi
 set -- $all_args
 args=$@
 arr=(${args// / })
-echo "-Jbuild.id prepared successfully and replaced in args"
+echo "### -Jbuild.id prepared successfully and replaced in args ###"
 #echo " new args"
 #echo $args
 }
