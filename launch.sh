@@ -13,6 +13,12 @@ tag_func(){
 						build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
 								if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
 									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%m_%d_%y-%H_%M_%S")
+									echo "### -Jbuild.id prepared successfully and replaced in args ###"
+									echo $build_id
+								else 
+									echo "couldn't parse tag, check regexp or the tag by the URL $i"
+									echo "I'll use for the build_id just the date"
+									build_id=$(date +"%m_%d_%y-%H_%M_%S")
 									echo $build_id
 								fi
                         all_args="$all_args ${build_id}"
@@ -26,7 +32,7 @@ fi
 set -- $all_args
 args=$@
 arr=(${args// / })
-echo "### -Jbuild.id prepared successfully and replaced in args ###"
+
 #echo " new args"
 #echo $args
 }
