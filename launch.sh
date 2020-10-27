@@ -5,7 +5,7 @@ arr=(${args// / })
 tag_func(){
 #the function read args trying to find -Jbuild.id=https://... and generate new build.id tag and replace in args.
 
-        if [[ $args =~ .+\-Jbuild.id=https://.+ ]]; then
+if [[ $args =~ .+\-Jbuild.id=https://.+ ]]; then
                 echo "####### found URL for tag parsing and autopreparing build.id #######"
                 for i in "${arr[@]}"; do
                   if [[ $i =~ -Jbuild.id=(https://.+) ]]; then
@@ -15,20 +15,16 @@ tag_func(){
 									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%m_%d_%y-%H_%M_%S")
 									echo "### -Jbuild.id prepared successfully and replaced in args ###"
 									echo $build_id
-								else 
-									echo "couldn't parse tag, check regexp or the tag by the URL $i"
-									echo "I'll use for the build_id just the date"
-									build_id=$(date +"%m_%d_%y-%H_%M_%S")
-									echo $build_id
 								fi
-                        all_args="$all_args ${build_id}"
-					else
-                        all_args="$all_args $i"
-					fi
+				  fi
+					all_args="$all_args ${build_id}"
                 done
 #                echo "all args = $all_args"
 
 fi
+
+
+
 set -- $all_args
 args=$@
 arr=(${args// / })
@@ -36,7 +32,8 @@ arr=(${args// / })
 #echo " new args"
 #echo $args
 }
-tag_func
+#tag_func
+
 #if [[ ${args} == *"-q "* ]]; then
 #IFS=" " read -ra PARAMS <<< "$args"
 #for index in "${!PARAMS[@]}"
@@ -246,7 +243,7 @@ fi
 
 #possibly this if condition does nothing... need to check in the future.
 if [[ "${influx_host}" ]]; then
-export _influx_host=" ${influx_host}"
+export _influx_host="${influx_host}"
 else
 export _influx_host=""
 fi
@@ -262,7 +259,9 @@ export tests_path=/mnt/jmeter
 python minio_tests_reader.py
 python minio_additional_files_reader.py
 mkdir '/tmp/data_for_post_processing'
-python minio_poster.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}
+#we don't need next two lines for the our project
+#echo "minio_poster.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}"
+#python minio_poster.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -i ${_influx_host} -p ${influx_port} -idb ${jmeter_db} -en ${env} ${_influx_user} ${_influx_password}
 
 if [[ "${influx_host}" ]]; then
 python ./place_listeners.py ${args// /%} ./backend_listener.jmx
