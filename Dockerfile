@@ -1,4 +1,4 @@
-FROM golang:1.13 as build
+FROM golang:1.15 as build
 
 RUN apt-get update && apt-get install -qy libsystemd-dev git protobuf-compiler
 
