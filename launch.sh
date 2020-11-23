@@ -1,6 +1,7 @@
 #!/bin/bash
 #set -euo pipefail
 args=$@
+echo "all args = $args"
 arr=(${args// / })
 tag_func(){
 #the function read args trying to find -Jbuild.id=https://... and generate new build.id tag and replace in args.
@@ -10,29 +11,32 @@ if [[ $args =~ .+\-Jbuild.id=https://.+ ]]; then
                 for i in "${arr[@]}"; do
                   if [[ $i =~ -Jbuild.id=(https://.+) ]]; then
                         build_id=${BASH_REMATCH[1]}
-						build_id=$(curl -v --silent $build_id --stderr - | egrep  "lxpsstgrs.*_.*-.*")
-								if [[ ${build_id} =~ lxpsstgrs.._(.+)-.+-.+ ]]; then
+						build_id=$(curl -v --silent $build_id --stderr - | egrep  ".core_(.+)-.+_.+_.+")
+								if [[ ${build_id} =~ .core_(.+)-.+_.+_.+ ]]; then
 									build_id='-Jbuild.id='${BASH_REMATCH[1]}'_'$(date +"%m_%d_%y-%H_%M_%S")
 									echo "### -Jbuild.id prepared successfully and replaced in args ###"
 									echo $build_id
+									all_args="$all_args ${build_id}"
 								fi
-				  fi
-					all_args="$all_args ${build_id}"
+					else
+						all_args="$all_args $i"
+				    fi
+					
                 done
-#                echo "all args = $all_args"
+                
 
+
+
+
+#unset old args and set new modified args
+	set -- $all_args
+	args=$@
+	arr=(${args// / })
+	echo "all args = $args"
 fi
 
-
-
-set -- $all_args
-args=$@
-arr=(${args// / })
-
-#echo " new args"
-#echo $args
 }
-#tag_func
+tag_func
 
 #if [[ ${args} == *"-q "* ]]; then
 #IFS=" " read -ra PARAMS <<< "$args"
@@ -247,7 +251,7 @@ export _influx_host="${influx_host}"
 else
 export _influx_host=""
 fi
-args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl"
+#args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl"
 #args="${args} -j /tmp/reports/jmeter.log -l /tmp/reports/jmeter.jtl -e -o /tmp/reports/HtmlReport/"
 set -e
 
@@ -273,8 +277,8 @@ echo "post_processor.py -t $test_type -s $test_name -b ${build_id} -l ${lg_id} -
 echo "########################################################"
 echo "START Running Jmeter on `date`"
 echo "jmeter args=${args}"
-cd "jmeter/apache-jmeter-5.3/bin/"
-"$DEFAULT_EXECUTION" "$JOLOKIA_AGENT" $JVM_ARGS -jar "/jmeter/apache-jmeter-5.3//bin/ApacheJMeter.jar" ${args}
+cd "jmeter/apache-jmeter-4.0/bin/"
+"$DEFAULT_EXECUTION" "$JOLOKIA_AGENT" $JVM_ARGS -jar "/jmeter/apache-jmeter-4.0//bin/ApacheJMeter.jar" ${args}
 cd "/"
 
 if [[ "${influx_host}" ]]; then
